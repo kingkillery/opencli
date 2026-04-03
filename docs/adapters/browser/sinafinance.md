@@ -6,28 +6,28 @@
 
 | Command | Description | Mode |
 |---------|-------------|------|
-| `opencli sinafinance news` | 新浪财经 7×24 小时实时快讯 | 🌐 Public |
-| `opencli sinafinance rolling-news` | 新浪财经滚动新闻 | 🔐 Browser |
-| `opencli sinafinance stock` | 新浪财经行情（A股/港股/美股） | 🌐 Public |
+| `opencli sinafinance news` | Sina Finance 7×24 real-time news flash | 🌐 Public |
+| `opencli sinafinance rolling-news` | Sina Finance rolling news feed | 🔐 Browser |
+| `opencli sinafinance stock` | Sina Finance market data (A-shares / HK stocks / US stocks) | 🌐 Public |
 
 ## Usage Examples
 
-### news - 7×24 实时快讯
+### news - 7×24 real-time news flash
 
 ```bash
 # Latest financial news
 opencli sinafinance news --limit 20
 
 # Filter by type
-opencli sinafinance news --type 1   # A股
-opencli sinafinance news --type 2   # 宏观
-opencli sinafinance news --type 6   # 国际
+opencli sinafinance news --type 1   # A-shares
+opencli sinafinance news --type 2   # Macro
+opencli sinafinance news --type 6   # International
 
 # JSON output
 opencli sinafinance news -f json
 ```
 
-### rolling-news - 滚动新闻
+### rolling-news - rolling news feed
 
 ```bash
 # Rolling news feed
@@ -37,7 +37,7 @@ opencli sinafinance rolling-news
 opencli sinafinance rolling-news -f json
 ```
 
-### stock - 股票行情
+### stock - stock market data
 
 ```bash
 # Search and view A-share stock
@@ -63,7 +63,7 @@ opencli sinafinance stock 贵州茅台 -f json
 | Option | Description |
 |--------|-------------|
 | `--limit` | Max results, up to 50 (default: 20) |
-| `--type` | News type: `0`=全部, `1`=A股, `2`=宏观, `3`=公司, `4`=数据, `5`=市场, `6`=国际, `7`=观点, `8`=央行, `9`=其它 |
+| `--type` | News type: `0`=All, `1`=A-shares, `2`=Macro, `3`=Companies, `4`=Data, `5`=Markets, `6`=International, `7`=Views, `8`=Central Bank, `9`=Other |
 
 ### stock
 
@@ -81,5 +81,5 @@ opencli sinafinance stock 贵州茅台 -f json
 
 - `news` and `stock` use public APIs — no browser or login needed
 - `stock` supports Chinese names, Chinese codes, and ticker symbols; auto-detects market
-- Market priority for auto-detection: cn (A股) → hk (港股) → us (美股)
-- US stock `High`/`Low` columns show 52-week range; A股/港股 show today's range
+- Market priority for auto-detection: cn (A-shares) → hk (HK stocks) → us (US stocks)
+- US stock `High`/`Low` columns show 52-week range; A-shares/HK stocks show today's range

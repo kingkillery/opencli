@@ -1,84 +1,84 @@
 # Testing Guide
 
-> 面向开发者和 AI Agent 的测试参考手册。
+> A testing reference guide for developers and AI Agents.
 
-## 目录
+## Table of Contents
 
-- [测试架构](#测试架构)
-- [当前覆盖范围](#当前覆盖范围)
-- [本地运行测试](#本地运行测试)
-- [如何添加新测试](#如何添加新测试)
-- [CI/CD 流水线](#cicd-流水线)
-- [浏览器模式](#浏览器模式)
-- [站点兼容性](#站点兼容性)
+- [Test Architecture](#test-architecture)
+- [Current Coverage](#current-coverage)
+- [Running Tests Locally](#running-tests-locally)
+- [How to Add New Tests](#how-to-add-new-tests)
+- [CI/CD Pipeline](#cicd-pipeline)
+- [Browser Mode](#browser-mode)
+- [Site Compatibility](#site-compatibility)
 
 ---
 
-## 测试架构
+## Test Architecture
 
-测试分为三层，全部使用 **vitest** 运行：
+Tests are organized into three layers, all run with **vitest**:
 
 ```text
 tests/
-├── e2e/                           # E2E 集成测试（子进程运行真实 CLI）
-│   ├── helpers.ts                 # runCli() / parseJsonOutput() 共享工具
-│   ├── public-commands.test.ts    # 公开 API 命令
-│   ├── browser-public.test.ts     # 浏览器命令（公开数据）
-│   ├── browser-auth.test.ts       # 需登录命令（graceful failure）
-│   ├── management.test.ts         # 管理命令（list / validate / verify / help）
-│   └── output-formats.test.ts     # 输出格式校验
+├── e2e/                           # E2E integration tests (real CLI run in subprocess)
+│   ├── helpers.ts                 # runCli() / parseJsonOutput() shared utilities
+│   ├── public-commands.test.ts    # Public API commands
+│   ├── browser-public.test.ts     # Browser commands (public data)
+│   ├── browser-auth.test.ts       # Commands requiring login (graceful failure)
+│   ├── management.test.ts         # Management commands (list / validate / verify / help)
+│   └── output-formats.test.ts     # Output format validation
 ├── smoke/
-│   └── api-health.test.ts         # 外部 API、adapter 定义、命令注册健康检查
+│   └── api-health.test.ts         # External API, adapter definition, and command registry health checks
 src/
-└── **/*.test.ts                   # 单元测试（当前 32 个文件）
+└── **/*.test.ts                   # Unit tests (currently 32 files)
 ```
 
-| 层 | 位置 | 当前文件数 | 运行方式 | 用途 |
+| Layer | Location | File Count | Run Command | Purpose |
 |---|---|---:|---|---|
-| 单元测试 | `src/**/*.test.ts` | 32 | `npx vitest run src/` | 内部模块、pipeline、adapter 工具函数 |
-| E2E 测试 | `tests/e2e/*.test.ts` | 5 | `npx vitest run tests/e2e/` | 真实 CLI 命令执行 |
-| 烟雾测试 | `tests/smoke/*.test.ts` | 1 | `npx vitest run tests/smoke/` | 外部 API 与注册完整性 |
+| Unit tests | `src/**/*.test.ts` | 32 | `npx vitest run src/` | Internal modules, pipeline, adapter utilities |
+| E2E tests | `tests/e2e/*.test.ts` | 5 | `npx vitest run tests/e2e/` | Real CLI command execution |
+| Smoke tests | `tests/smoke/*.test.ts` | 1 | `npx vitest run tests/smoke/` | External API and registry integrity |
 
 ---
 
-## 当前覆盖范围
+## Current Coverage
 
-### 单元测试（32 个文件）
+### Unit Tests (32 files)
 
-| 领域 | 文件 |
+| Domain | Files |
 |---|---|
-| 核心运行时与输出 | `src/browser.test.ts`, `src/browser/dom-snapshot.test.ts`, `src/build-manifest.test.ts`, `src/capabilityRouting.test.ts`, `src/doctor.test.ts`, `src/engine.test.ts`, `src/interceptor.test.ts`, `src/output.test.ts`, `src/plugin.test.ts`, `src/registry.test.ts`, `src/snapshotFormatter.test.ts` |
-| pipeline 与下载 | `src/download/index.test.ts`, `src/pipeline/executor.test.ts`, `src/pipeline/template.test.ts`, `src/pipeline/transform.test.ts` |
-| 站点 / adapter 逻辑 | `src/clis/apple-podcasts/commands.test.ts`, `src/clis/apple-podcasts/utils.test.ts`, `src/clis/bloomberg/utils.test.ts`, `src/clis/chaoxing/utils.test.ts`, `src/clis/coupang/utils.test.ts`, `src/clis/google/utils.test.ts`, `src/clis/grok/ask.test.ts`, `src/clis/twitter/timeline.test.ts`, `src/clis/weread/utils.test.ts`, `src/clis/xiaohongshu/creator-note-detail.test.ts`, `src/clis/xiaohongshu/creator-notes-summary.test.ts`, `src/clis/xiaohongshu/creator-notes.test.ts`, `src/clis/xiaohongshu/search.test.ts`, `src/clis/xiaohongshu/user-helpers.test.ts`, `src/clis/xiaoyuzhou/utils.test.ts`, `src/clis/youtube/transcript-group.test.ts`, `src/clis/zhihu/download.test.ts` |
+| Core runtime & output | `src/browser.test.ts`, `src/browser/dom-snapshot.test.ts`, `src/build-manifest.test.ts`, `src/capabilityRouting.test.ts`, `src/doctor.test.ts`, `src/engine.test.ts`, `src/interceptor.test.ts`, `src/output.test.ts`, `src/plugin.test.ts`, `src/registry.test.ts`, `src/snapshotFormatter.test.ts` |
+| Pipeline & download | `src/download/index.test.ts`, `src/pipeline/executor.test.ts`, `src/pipeline/template.test.ts`, `src/pipeline/transform.test.ts` |
+| Site / adapter logic | `src/clis/apple-podcasts/commands.test.ts`, `src/clis/apple-podcasts/utils.test.ts`, `src/clis/bloomberg/utils.test.ts`, `src/clis/chaoxing/utils.test.ts`, `src/clis/coupang/utils.test.ts`, `src/clis/google/utils.test.ts`, `src/clis/grok/ask.test.ts`, `src/clis/twitter/timeline.test.ts`, `src/clis/weread/utils.test.ts`, `src/clis/xiaohongshu/creator-note-detail.test.ts`, `src/clis/xiaohongshu/creator-notes-summary.test.ts`, `src/clis/xiaohongshu/creator-notes.test.ts`, `src/clis/xiaohongshu/search.test.ts`, `src/clis/xiaohongshu/user-helpers.test.ts`, `src/clis/xiaoyuzhou/utils.test.ts`, `src/clis/youtube/transcript-group.test.ts`, `src/clis/zhihu/download.test.ts` |
 
-这些测试覆盖的重点包括：
+Key areas covered by these tests:
 
-- Browser Bridge、DOM snapshot、interceptor、capability routing
-- manifest 生成、命令发现、插件安装与注册表
-- 输出格式渲染与 snapshot formatting
-- pipeline 模板求值、执行器与变换步骤
-- 各站点 adapter 的数据归一化、参数处理与容错逻辑
+- Browser Bridge, DOM snapshot, interceptor, capability routing
+- Manifest generation, command discovery, plugin installation and registry
+- Output format rendering and snapshot formatting
+- Pipeline template evaluation, executor and transform steps
+- Data normalization, parameter handling and error tolerance for each site adapter
 
-### E2E 测试（5 个文件）
+### E2E Tests (5 files)
 
-| 文件 | 当前覆盖范围 |
+| File | Current Coverage |
 |---|---|
-| `tests/e2e/public-commands.test.ts` | `bloomberg`、`apple-podcasts`、`hackernews`、`v2ex`、`xiaoyuzhou`、`google suggest` 等公开命令 |
-| `tests/e2e/browser-public.test.ts` | `bbc`、`bloomberg`、`bilibili`、`weibo`、`zhihu`、`reddit`、`twitter`、`xueqiu`、`reuters`、`youtube`、`smzdm`、`boss`、`ctrip`、`coupang`、`xiaohongshu`、`google`、`yahoo-finance`、`v2ex daily` |
-| `tests/e2e/browser-auth.test.ts` | `bilibili`、`twitter`、`v2ex`、`xueqiu`、`linux-do`、`xiaohongshu` 的需登录命令 graceful failure |
-| `tests/e2e/management.test.ts` | `list`、`validate`、`verify`、`--version`、`--help`、unknown command |
-| `tests/e2e/output-formats.test.ts` | `json` / `yaml` / `csv` / `md` 输出格式校验 |
-| `tests/e2e/plugin-management.test.ts` | `plugin install` / `list` / `update` / `uninstall` 全生命周期 |
+| `tests/e2e/public-commands.test.ts` | Public commands: `bloomberg`, `apple-podcasts`, `hackernews`, `v2ex`, `xiaoyuzhou`, `google suggest`, etc. |
+| `tests/e2e/browser-public.test.ts` | `bbc`, `bloomberg`, `bilibili`, `weibo`, `zhihu`, `reddit`, `twitter`, `xueqiu`, `reuters`, `youtube`, `smzdm`, `boss`, `ctrip`, `coupang`, `xiaohongshu`, `google`, `yahoo-finance`, `v2ex daily` |
+| `tests/e2e/browser-auth.test.ts` | Graceful failure for login-required commands: `bilibili`, `twitter`, `v2ex`, `xueqiu`, `linux-do`, `xiaohongshu` |
+| `tests/e2e/management.test.ts` | `list`, `validate`, `verify`, `--version`, `--help`, unknown command |
+| `tests/e2e/output-formats.test.ts` | Output format validation: `json` / `yaml` / `csv` / `md` |
+| `tests/e2e/plugin-management.test.ts` | Full `plugin install` / `list` / `update` / `uninstall` lifecycle |
 
-### 烟雾测试（1 个文件）
+### Smoke Tests (1 file)
 
-| 文件 | 当前覆盖范围 |
+| File | Current Coverage |
 |---|---|
-| `tests/smoke/api-health.test.ts` | `hackernews`、`v2ex` 公开 API 可用性，`validate` 全量 adapter 校验，以及命令注册表基础完整性 |
+| `tests/smoke/api-health.test.ts` | `hackernews`, `v2ex` public API availability, `validate` full adapter validation, and command registry basic integrity |
 
-### 快速核对命令
+### Quick Check Commands
 
-需要刷新测试清单时，直接以仓库文件为准：
+To refresh the test file list, use the repository files directly:
 
 ```bash
 find src -name '*.test.ts' | sort
@@ -88,57 +88,57 @@ find tests/smoke -name '*.test.ts' | sort
 
 ---
 
-## 本地运行测试
+## Running Tests Locally
 
-### 前置条件
+### Prerequisites
 
 ```bash
-npm ci                # 安装依赖
-npm run build         # 编译（E2E / smoke 测试需要 dist/main.js）
+npm ci                # Install dependencies
+npm run build         # Compile (required by E2E / smoke tests for dist/main.js)
 ```
 
-### 运行命令
+### Run Commands
 
 ```bash
-# 全部单元测试
+# All unit tests
 npx vitest run src/
 
-# 全部 E2E 测试（会真实调用外部 API / 浏览器）
+# All E2E tests (makes real external API / browser calls)
 npx vitest run tests/e2e/
 
-# 全部 smoke 测试
+# All smoke tests
 npx vitest run tests/smoke/
 
-# 单个测试文件
+# Single test file
 npx vitest run src/clis/apple-podcasts/commands.test.ts
 npx vitest run tests/e2e/management.test.ts
 
-# 全部测试
+# All tests
 npx vitest run
 
-# watch 模式（开发时推荐）
+# Watch mode (recommended during development)
 npx vitest src/
 ```
 
-### 浏览器命令本地测试须知
+### Notes for Browser Command Local Testing
 
-- opencli 通过 Browser Bridge 扩展连接已运行的 Chrome 浏览器
-- E2E 测试通过 `tests/e2e/helpers.ts` 里的 `runCli()` 调用已构建的 `dist/main.js`
-- `browser-public.test.ts` 使用 `tryBrowserCommand()`，站点反爬或地域限制导致空数据时会 warn + pass
-- `browser-auth.test.ts` 验证 **graceful failure**，重点是不 crash、不 hang、错误信息可控
-- 如需测试完整登录态，保持 Chrome 登录态并安装 Browser Bridge 扩展，再手动运行对应测试
+- opencli connects to a running Chrome browser via the Browser Bridge extension
+- E2E tests invoke the built `dist/main.js` via `runCli()` in `tests/e2e/helpers.ts`
+- `browser-public.test.ts` uses `tryBrowserCommand()` — it warns and passes when a site returns empty data due to anti-scraping measures or geo-restrictions
+- `browser-auth.test.ts` verifies **graceful failure**: the main concern is no crash, no hang, and a controlled error message
+- To test with a full logged-in session, keep Chrome logged in with the Browser Bridge extension installed and run the relevant tests manually
 
 ---
 
-## 如何添加新测试
+## How to Add New Tests
 
-### 新增 YAML Adapter（如 `src/clis/producthunt/trending.yaml`）
+### Adding a New YAML Adapter (e.g. `src/clis/producthunt/trending.yaml`)
 
-1. `opencli validate` 的 E2E / smoke 测试会覆盖 adapter 结构校验
-2. 根据 adapter 类型，在对应测试文件补一个 `it()` block
+1. The `opencli validate` E2E / smoke tests will cover adapter structure validation
+2. Based on the adapter type, add an `it()` block to the corresponding test file
 
 ```typescript
-// 如果 browser: false（公开 API）→ tests/e2e/public-commands.test.ts
+// If browser: false (public API) → tests/e2e/public-commands.test.ts
 it('producthunt trending returns data', async () => {
   const { stdout, code } = await runCli(['producthunt', 'trending', '--limit', '3', '-f', 'json']);
   expect(code).toBe(0);
@@ -150,7 +150,7 @@ it('producthunt trending returns data', async () => {
 ```
 
 ```typescript
-// 如果 browser: true 但可公开访问 → tests/e2e/browser-public.test.ts
+// If browser: true but publicly accessible → tests/e2e/browser-public.test.ts
 it('producthunt trending returns data', async () => {
   const data = await tryBrowserCommand(['producthunt', 'trending', '--limit', '3', '-f', 'json']);
   expectDataOrSkip(data, 'producthunt trending');
@@ -158,55 +158,55 @@ it('producthunt trending returns data', async () => {
 ```
 
 ```typescript
-// 如果 browser: true 且需登录 → tests/e2e/browser-auth.test.ts
+// If browser: true and requires login → tests/e2e/browser-auth.test.ts
 it('producthunt me fails gracefully without login', async () => {
   await expectGracefulAuthFailure(['producthunt', 'me', '-f', 'json'], 'producthunt me');
 }, 60_000);
 ```
 
-### 新增管理命令（如 `opencli export`）
+### Adding a New Management Command (e.g. `opencli export`)
 
-在 `tests/e2e/management.test.ts` 添加测试；如果新命令会影响输出格式，也同步补 `tests/e2e/output-formats.test.ts`。
+Add a test in `tests/e2e/management.test.ts`; if the new command affects output format, also update `tests/e2e/output-formats.test.ts`.
 
-### 新增内部模块
+### Adding a New Internal Module
 
-在对应源码旁创建 `*.test.ts`，优先和被测模块放在同一目录下，便于发现与维护。
+Create a `*.test.ts` file next to the source file, preferably in the same directory as the module being tested for easy discovery and maintenance.
 
-### 决策流程图
+### Decision Flowchart
 
 ```text
-新增功能 → 是内部模块？ → 是 → src/ 下加 *.test.ts
-                ↓ 否
-         是 CLI 命令？ → browser: false? → tests/e2e/public-commands.test.ts
-                              ↓ true
-                        公开数据？ → tests/e2e/browser-public.test.ts
-                              ↓ 需登录
-                        tests/e2e/browser-auth.test.ts
+New feature → Internal module? → Yes → add *.test.ts under src/
+                    ↓ No
+             CLI command? → browser: false? → tests/e2e/public-commands.test.ts
+                                  ↓ true
+                            Public data? → tests/e2e/browser-public.test.ts
+                                  ↓ requires login
+                            tests/e2e/browser-auth.test.ts
 ```
 
 ---
 
-## CI/CD 流水线
+## CI/CD Pipeline
 
 ### `ci.yml`
 
-| Job | 触发条件 | 内容 |
+| Job | Trigger | Description |
 |---|---|---|
-| `build` | push/PR 到 `main`,`dev` | `tsc --noEmit` + `npm run build` |
-| `unit-test` | push/PR 到 `main`,`dev` | Node `20` 与 `22` 双版本运行 `src/` 单元测试，按 `2` shard 并行 |
-| `smoke-test` | `schedule` 或 `workflow_dispatch` | 安装真实 Chrome，`xvfb-run` 执行 `tests/smoke/` |
+| `build` | push/PR to `main`, `dev` | `tsc --noEmit` + `npm run build` |
+| `unit-test` | push/PR to `main`, `dev` | Run `src/` unit tests on Node `20` and `22`, parallelized across `2` shards |
+| `smoke-test` | `schedule` or `workflow_dispatch` | Install real Chrome, run `tests/smoke/` via `xvfb-run` |
 
 ### `e2e-headed.yml`
 
-| Job | 触发条件 | 内容 |
+| Job | Trigger | Description |
 |---|---|---|
-| `e2e-headed` | push/PR 到 `main`,`dev`，或手动触发 | 安装真实 Chrome，`xvfb-run` 执行 `tests/e2e/` |
+| `e2e-headed` | push/PR to `main`, `dev`, or manual trigger | Install real Chrome, run `tests/e2e/` via `xvfb-run` |
 
-E2E 与 smoke 都使用 `./.github/actions/setup-chrome` 准备真实 Chrome，并通过 `OPENCLI_BROWSER_EXECUTABLE_PATH` 注入浏览器路径。
+Both E2E and smoke jobs use `./.github/actions/setup-chrome` to prepare real Chrome and inject the browser path via `OPENCLI_BROWSER_EXECUTABLE_PATH`.
 
 ### Sharding
 
-单元测试使用 vitest 内置 shard，并在 Node `20` / `22` 两个版本上运行：
+Unit tests use vitest's built-in shard feature and run on both Node `20` and `22`:
 
 ```yaml
 strategy:
@@ -219,16 +219,16 @@ steps:
 
 ---
 
-## 浏览器模式
+## Browser Mode
 
-opencli 通过 Browser Bridge 扩展连接浏览器：
+opencli connects to a browser via the Browser Bridge extension:
 
-| 条件 | 模式 | 使用场景 |
+| Condition | Mode | Use Case |
 |---|---|---|
-| 扩展已安装 / 已连接 | Extension 模式 | 本地用户，连接已登录的 Chrome |
-| 无扩展 token | CLI 自行拉起浏览器 | CI、无登录态或纯自动化场景 |
+| Extension installed / connected | Extension mode | Local user connected to a logged-in Chrome |
+| No extension token | CLI launches its own browser | CI, no login session, or fully automated scenarios |
 
-CI 中使用 `OPENCLI_BROWSER_EXECUTABLE_PATH` 指定真实 Chrome 路径：
+Use `OPENCLI_BROWSER_EXECUTABLE_PATH` to specify the real Chrome path in CI:
 
 ```yaml
 env:
@@ -237,16 +237,16 @@ env:
 
 ---
 
-## 站点兼容性
+## Site Compatibility
 
-GitHub Actions 的美国 runner 上，部分站点会因为地域限制、登录要求或反爬而返回空数据。当前 E2E 对这些场景采用 warn + pass 策略，避免偶发站点限制把整条 CI 打红。
+On GitHub Actions US runners, some sites return empty data due to geo-restrictions, login requirements, or anti-scraping measures. E2E tests use a warn + pass strategy for these scenarios to prevent intermittent site restrictions from failing the entire CI pipeline.
 
-| 站点 | CI 表现 | 常见原因 |
+| Site | CI Behavior | Common Reason |
 |---|---|---|
-| `hackernews`、`bbc`、`v2ex`、`bloomberg` | 通常返回数据 | 公开接口或公开页面 |
-| `yahoo-finance`、`google` | 通常返回数据 | 页面公开，但仍可能受限流影响 |
-| `bilibili`、`zhihu`、`weibo`、`xiaohongshu`、`xueqiu` | 容易空数据 | 地域限制、反爬、登录要求 |
-| `reddit`、`twitter`、`youtube` | 容易空数据 | 登录态、cookie、机器人检测 |
-| `smzdm`、`boss`、`ctrip`、`coupang`、`linux-do` | 结果波动较大 | 地域限制、风控或页面结构变动 |
+| `hackernews`, `bbc`, `v2ex`, `bloomberg` | Usually returns data | Public API or public page |
+| `yahoo-finance`, `google` | Usually returns data | Public page, but may be affected by rate limiting |
+| `bilibili`, `zhihu`, `weibo`, `xiaohongshu`, `xueqiu` | Often returns empty data | Geo-restriction, anti-scraping, or login required |
+| `reddit`, `twitter`, `youtube` | Often returns empty data | Login state, cookies, or bot detection |
+| `smzdm`, `boss`, `ctrip`, `coupang`, `linux-do` | Results vary | Geo-restriction, risk control, or page structure changes |
 
-> 如果需要更稳定的浏览器 E2E 结果，优先使用具备目标站点网络可达性的 self-hosted runner。
+> For more stable browser E2E results, prefer using a self-hosted runner with network access to the target sites.
