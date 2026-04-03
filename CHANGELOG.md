@@ -200,7 +200,7 @@
 * **hackernews:** add new, best, ask, show, jobs, search, user commands ([#290](https://github.com/jackwener/opencli/issues/290)) ([127a974](https://github.com/jackwener/opencli/commit/127a974))
 * **doubao-app:** add Doubao AI desktop app CLI adapter ([#289](https://github.com/jackwener/opencli/issues/289)) ([66c4b84](https://github.com/jackwener/opencli/commit/66c4b84))
 * **doubao:** add doubao browser adapter ([#277](https://github.com/jackwener/opencli/issues/277)) ([9cdc127](https://github.com/jackwener/opencli/commit/9cdc127))
-* **xiaohongshu:** add publish command for 图文 note automation ([#276](https://github.com/jackwener/opencli/issues/276)) ([a6d993f](https://github.com/jackwener/opencli/commit/a6d993f))
+* **xiaohongshu:** add publish command for image-text note automation ([#276](https://github.com/jackwener/opencli/issues/276)) ([a6d993f](https://github.com/jackwener/opencli/commit/a6d993f))
 * **weixin:** add weixin article download adapter & abstract download helpers ([#280](https://github.com/jackwener/opencli/issues/280)) ([b7c6c02](https://github.com/jackwener/opencli/commit/b7c6c02))
 
 
